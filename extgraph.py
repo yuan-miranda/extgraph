@@ -1,13 +1,5 @@
 # this program is still on development, no graph and in-dept instructions to use or informations is created yet.
-# but this already outputs the necessary stuffs. This is the initial commit.
-# current version: v0.0.1
-
-# known issue:
-#   given <path> doesnt do anything when using -b, it only reads the buffer and exit the program. (FIXED)
-#       > similar: should -h and -v ignore the rest of the args and print and exit only when they're on path location?
-#           yes, it should ignore the rest of the args and print and exit only when they're on path location.
-#       > similar: should -h and -v be executed together, or even the main program flags (-r, -g, -b) with it? (opinion)
-#           no, first come first serve, then exits the program, or ignore the rest of the args and print and exit only.
+# current version: v0.0.3 (version being the commit number from the repository)
 
 import os
 import sys
@@ -18,10 +10,8 @@ class extgraph:
         self.graph = False
         self.recursive = False
         self.buffer = False
-
         self.args = []
         self.path = []
-        
 
     def display_help(self):
         print("Usage: extgraph.py <path> [-r] [-g] [extension1 .extension2 ...]")
@@ -147,6 +137,7 @@ class extgraph:
         """
         flags = ["-r", "--recursive", "-g", "--graph", "-b", "--buffer", "-h", "--help", "-v", "--version"]
         to_remove = []
+        
         for arg in args:
             if arg.startswith(("-", "--")) and not arg in flags:
                 print(f"Invalid argument: {arg}")
@@ -155,6 +146,7 @@ class extgraph:
         if args[0] in ["-h", "--help"]:
             self.display_help()
             sys.exit(0)
+
         elif args[0] in ["-v", "--version"]:
             self.display_version()
             sys.exit(0)
@@ -164,8 +156,7 @@ class extgraph:
             print("recursion and buffer cannot be used at the same time.")
             sys.exit(1)
 
-        # if -b is used, ignore the path, idk why I still need to initialize the path here even tho i just read the buffer,
-        # ill fix it on the next commit.
+        # if -b is used, ignore the path, and read the buffer.
         elif "-b" in args or "--buffer" in args:
             if args[0] != "-b" and args[0] != "--buffer":
                 print(f"path {args[0]} is ignored when using -b flag.")
@@ -181,13 +172,14 @@ class extgraph:
             self.recursive = True
             to_remove += ["-r", "--recursive"]
 
-        # if the path is not specified (using flag on its arg pos), use the current working directory.
-        if args[0] in flags or self.buffer:
-            self.path = self.set_path(os.getcwd())
-            to_remove.append(args[0])
-        else:
-            self.path = self.set_path(args[0])
-            to_remove.append(args[0])
+        # initialize the path if its not in buffer mode, use the cwd when path index is a flag, otherwise, the specified one.
+        if not self.buffer:
+            if args[0] in flags:
+                self.path = self.set_path(os.getcwd())
+                to_remove.append(args[0])
+            else:
+                self.path = self.set_path(args[0])
+                to_remove.append(args[0])
 
         return [arg for arg in args if arg not in to_remove]
 
@@ -204,9 +196,10 @@ class extgraph:
             self.read_data(extensions)
             sys.exit(0)
 
-        if self.recursive:
+        elif self.recursive:
             values = self.recursive_search(self.path)
             files, folders = values["files"], values["folders"]
+
         else:
             files = [f for f in os.listdir(self.path) if self.is_file(f"{self.path}/{f}")]
             folders = [d for d in os.listdir(self.path) if not self.is_file(f"{self.path}/{d}")]
@@ -214,6 +207,7 @@ class extgraph:
         extensions = self.filter_by_extensions(files, folders)
         self.save_buffer(extensions)
         self.read_data(extensions)
+
 try:
     ext = extgraph()
     ext.run(sys.argv[1:])
