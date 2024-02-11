@@ -5,12 +5,12 @@ import sys
 import json
 
 class extgraph:
-    def __init__(self, args) -> None:
+    def __init__(self) -> None:
         self.graph = False
         self.recursive = False
         self.buffer = False
 
-        self.args = self.parse_args(args)
+        self.args = []
         self.path = []
         
 
@@ -104,41 +104,6 @@ class extgraph:
             sys.exit(1)
         return path
 
-    def parse_args(self, args):
-        """
-        validate the flags in the input, then remove it to prevent it being a file extension.
-        """
-        to_remove_arg = []
-        if "-h" in args or "--help" in args:
-            self.display_help()
-            sys.exit(0)
-        elif "-v" in args or "--version" in args:
-            self.display_version()
-            sys.exit(0)
-
-        # buffer and recursion cannot be used at the same time.
-        elif ("-r" in args or "--recursive" in args) and ("-b" in args or "--buffer" in args):
-            print("recursion and buffer cannot be used at the same time.")
-            sys.exit(1) 
-
-        # path is inputted, so ignore it. only run the program in buffer mode.
-        elif "-b" in args or "--buffer" in args:
-            if args[0] != "-b" and args[0] != "--buffer":
-                print(f"note: path '{args[0]}' is ignored. no path is required, when using -b flag.")
-                to_remove_arg.append(args[0])
-            self.buffer = True
-            to_remove_arg += ["-b", "--buffer"]
-
-        elif "-g" in args or "--graph" in args:
-            self.graph = True
-            to_remove_arg += ["-g", "--graph"]
-        
-        elif "-r" in args or "--recursive" in args:
-            self.recursive = True
-            to_remove_arg += ["-r", "--recursive"]
-        
-        return [arg for arg in args if arg not in to_remove_arg]
-
     def save_buffer(self, dict):
         """
         save the dict in a json format.
@@ -166,42 +131,79 @@ class extgraph:
         for key, value in dict.items():
             if key != "files":
                 print(f"{key}: {value}")
+    
+    def parse_args(self, args):
+        flags = ["-r", "--recursive", "-g", "--graph", "-b", "--buffer", "-h", "--help", "-v", "--version"]
+        to_remove = []
+        for arg in args:
+            if arg.startswith(("-", "--")) and not arg in flags:
+                print(f"Invalid argument: {arg}")
+                sys.exit(1)
+        
+        if args[0] in ["-h", "--help"]:
+            self.display_help()
+            sys.exit(0)
+        elif args[0] in ["-v", "--version"]:
+            self.display_version()
+            sys.exit(0)
 
-    def run(self):
-        """
-        starting point of the extgraph class, used to execute things and stuffs.
-        """
+        # buffer and recursion cannot be used at the same time.
+        elif ("-r" in args or "--recursive" in args) and ("-b" in args or "--buffer" in args):
+            print("recursion and buffer cannot be used at the same time.")
+            sys.exit(1)
+
+        elif "-b" in args or "--buffer" in args:
+            if args[0] != "-b" and args[0] != "--buffer":
+                print(f"path {args[0]} is ignored when using -b flag.")
+                to_remove.append(args[0])
+                # args.remove(args[0])
+            self.buffer = True
+            to_remove += ["-b", "--buffer"]
+            # args.remove("-b")
+            # args.remove("--buffer")
+
+        elif "-g" in args or "--graph" in args:
+            self.graph = True
+            to_remove += ["-g", "--graph"]
+            # args.remove("-g")
+            # args.remove("--graph")
+        
+        elif "-r" in args or "--recursive" in args:
+            self.recursive = True
+            to_remove += ["-r", "--recursive"]
+            # args.remove("-r")
+            # args.remove("--recursive")
+
+        # if the path is not specified (using flag on its arg pos), use the current working directory.
+        if args[0] in flags or self.buffer:
+            self.path = self.set_path(os.getcwd())
+            to_remove.append(args[0])
+        else:
+            self.path = self.set_path(args[0])
+            to_remove.append(args[0])
+
+        return [arg for arg in args if arg not in to_remove]
+
+    def run(self, args):
+        self.args = self.parse_args(args)
         if self.buffer:
-            print("reading buffer...")
-            extensions = self.filter_by_extensions(*self.load_buffer()) # unpack the tuple returned by load_data()
-
-            if self.graph:
-                print("graphing is not yet implemented.")
-
+            files, folders = self.load_buffer()
+            extensions = self.filter_by_extensions(files, folders)
             self.read_data(extensions)
             sys.exit(0)
+
+        if self.recursive:
+            values = self.recursive_search(self.path)
+            files, folders = values["files"], values["folders"]
         else:
-            # idk wtf is this, but it works...
-            self.path = self.set_path(self.args[0])
-            self.args = self.args[1:]
+            files = [f for f in os.listdir(self.path) if self.is_file(f"{self.path}/{f}")]
+            folders = [d for d in os.listdir(self.path) if not self.is_file(f"{self.path}/{d}")]
 
-            if self.recursive:
-                result = self.recursive_search(self.path)
-                files, folders = result["files"], result["folders"]
-            else:
-                files = [f for f in os.listdir(self.path) if self.is_file(f"{self.path}/{f}")]
-                folders = [d for d in os.listdir(self.path) if not self.is_file(f"{self.path}/{d}")]
-
-            extensions = self.filter_by_extensions(files, folders)
-            self.save_buffer(extensions)
-
-            if self.graph:
-                print("graphing is not yet implemented.")
-
-            self.read_data(extensions)
-
+        extensions = self.filter_by_extensions(files, folders)
+        self.save_buffer(extensions)
+        self.read_data(extensions)
 try:
-    ext = extgraph(sys.argv[1:])
-    ext.run()
+    ext = extgraph()
+    ext.run(sys.argv[1:])
 except IndexError:
-    print(f"expected a path after {sys.argv[0]}")
+    ext.run([os.getcwd()])

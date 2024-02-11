@@ -5,27 +5,28 @@
 # known issue:
 #   given <path> doesnt do anything when using -b, it only reads the buffer and exit the program. (FIXED)
 #       > similar: should -h and -v ignore the rest of the args and print and exit only when they're on path location?
+#           yes, it should ignore the rest of the args and print and exit only when they're on path location.
 #       > similar: should -h and -v be executed together, or even the main program flags (-r, -g, -b) with it? (opinion)
+#           no, first come first serve, then exits the program, or ignore the rest of the args and print and exit only.
 
 import os
 import sys
 import json
 
 class extgraph:
-    def __init__(self, path=None, args=None) -> None:
+    def __init__(self) -> None:
         self.graph = False
         self.recursive = False
         self.buffer = False
 
-        self.args = self.parse_args(args)
-        
-        if path:
-            self.path = self.set_path(path)
+        self.args = []
+        self.path = []
         
 
     def display_help(self):
-        print("Usage: extgraph.py <path> [-g] [-r] [-h] [-v] [extension1 .extension2 ...]")
-        print("       extgraph.py -b [-g] [-h] [-v] [extension1 .extension2 ...]")
+        print("Usage: extgraph.py <path> [-r] [-g] [extension1 .extension2 ...]")
+        print("       extgraph.py -b [-g] [extension1 .extension2 ...]")
+        print("       extgraph.py [-h] [-v]")
 
     def display_version(self):
         print("extgraph.py v0.0.1")
@@ -112,43 +113,6 @@ class extgraph:
             sys.exit(1)
         return path
 
-    def parse_args(self, args):
-        """
-        validate the flags in the input, then remove it to prevent it being a file extension.
-        """
-        to_remove_arg = []
-        try:
-            # args = sys.argv[2:]
-            for arg in args:
-                if not arg.startswith(("-", "--")):
-                    pass
-                
-                elif ("-r" in args or "--recursive" in args) and ("-b" in args or "--buffer" in args):
-                    print("recursion and buffer cannot be used at the same time.")
-                    sys.exit(1) 
-                elif arg in ["-g", "--graph"]:
-                    self.graph = True
-                    to_remove_arg.append(arg)
-                elif arg in ["-r", "--recursive"]:
-                    self.recursive = True
-                    to_remove_arg.append(arg)
-                elif arg in ["-b", "--buffer"]:
-                    self.buffer = True
-                    to_remove_arg.append(arg)
-                elif arg in ["-h", "--help"]:
-                    self.display_help()
-                    to_remove_arg.append(arg)
-                elif arg in ["-v", "--version"]:
-                    self.display_version()
-                    to_remove_arg.append(arg)
-                else:
-                    print(f"Invalid argument: {arg}")
-                    sys.exit(1)
-        
-            return [arg for arg in args if arg not in to_remove_arg]
-        except IndexError:
-            return args
-
     def save_buffer(self, dict):
         """
         save the dict in a json format.
@@ -176,36 +140,82 @@ class extgraph:
         for key, value in dict.items():
             if key != "files":
                 print(f"{key}: {value}")
+    
+    def parse_args(self, args):
+        """
+        validate the flags in the input, then remove it to prevent it from being a file extension.
+        """
+        flags = ["-r", "--recursive", "-g", "--graph", "-b", "--buffer", "-h", "--help", "-v", "--version"]
+        to_remove = []
+        for arg in args:
+            if arg.startswith(("-", "--")) and not arg in flags:
+                print(f"Invalid argument: {arg}")
+                sys.exit(1)
+        
+        if args[0] in ["-h", "--help"]:
+            self.display_help()
+            sys.exit(0)
+        elif args[0] in ["-v", "--version"]:
+            self.display_version()
+            sys.exit(0)
 
-    def run(self):
+        # buffer and recursion cannot be used at the same time.
+        elif ("-r" in args or "--recursive" in args) and ("-b" in args or "--buffer" in args):
+            print("recursion and buffer cannot be used at the same time.")
+            sys.exit(1)
+
+        # if -b is used, ignore the path, idk why I still need to initialize the path here even tho i just read the buffer,
+        # ill fix it on the next commit.
+        elif "-b" in args or "--buffer" in args:
+            if args[0] != "-b" and args[0] != "--buffer":
+                print(f"path {args[0]} is ignored when using -b flag.")
+                to_remove.append(args[0])
+            self.buffer = True
+            to_remove += ["-b", "--buffer"]
+
+        elif "-g" in args or "--graph" in args:
+            self.graph = True
+            to_remove += ["-g", "--graph"]
+        
+        elif "-r" in args or "--recursive" in args:
+            self.recursive = True
+            to_remove += ["-r", "--recursive"]
+
+        # if the path is not specified (using flag on its arg pos), use the current working directory.
+        if args[0] in flags or self.buffer:
+            self.path = self.set_path(os.getcwd())
+            to_remove.append(args[0])
+        else:
+            self.path = self.set_path(args[0])
+            to_remove.append(args[0])
+
+        return [arg for arg in args if arg not in to_remove]
+
+    def run(self, args):
         """
-        starting point of the extgraph class, used to execute things and stuffs.
+        run the program.
         """
+        # parse the arguments.
+        self.args = self.parse_args(args)
+
         if self.buffer:
-            extensions = self.filter_by_extensions(*self.load_buffer()) # unpack the tuple returned by load_data()
+            files, folders = self.load_buffer()
+            extensions = self.filter_by_extensions(files, folders)
             self.read_data(extensions)
             sys.exit(0)
+
+        if self.recursive:
+            values = self.recursive_search(self.path)
+            files, folders = values["files"], values["folders"]
         else:
-            if self.recursive:
-                result = self.recursive_search(self.path)
-                files, folders = result["files"], result["folders"]
-            else:
-                files = [f for f in os.listdir(self.path) if self.is_file(f"{self.path}/{f}")]
-                folders = [d for d in os.listdir(self.path) if not self.is_file(f"{self.path}/{d}")]
+            files = [f for f in os.listdir(self.path) if self.is_file(f"{self.path}/{f}")]
+            folders = [d for d in os.listdir(self.path) if not self.is_file(f"{self.path}/{d}")]
 
-            extensions = self.filter_by_extensions(files, folders)
-            self.save_buffer(extensions)
-            self.read_data(extensions)
-
+        extensions = self.filter_by_extensions(files, folders)
+        self.save_buffer(extensions)
+        self.read_data(extensions)
 try:
-    # ["-b", "--buffer", "-h", "--help", "-v", "--version"]:
-    if "-b" in sys.argv or "--buffer" in sys.argv:
-        if sys.argv[1] != "-b" and sys.argv[1] != "--buffer":
-            print(f"note: path '{sys.argv[1]}' is ignored. no path is required, when using -b flag.")
-            del sys.argv[1]
-        ext = extgraph(args=sys.argv[1:])
-    else:
-        ext = extgraph(sys.argv[1], sys.argv[2:])
-    ext.run()
+    ext = extgraph()
+    ext.run(sys.argv[1:])
 except IndexError:
-    print(f"expected a path after {sys.argv[0]}")
+    ext.run([os.getcwd()])
