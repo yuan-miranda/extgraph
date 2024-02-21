@@ -1,5 +1,9 @@
 # this program is still on development, no graph and in-dept instructions to use or informations is created yet.
-# current version: v0.0.3 (version being the commit number from the repository)
+
+# NOTE: changed the "graph" flag to "number" flag instead temporarily, im testing something.
+
+# current version: v0.0.4 (version being the commit number from the repository)
+
 
 import os
 import sys
@@ -7,19 +11,20 @@ import json
 
 class extgraph:
     def __init__(self) -> None:
-        self.graph = False
+        # self.graph = False
+        self.number = False
         self.recursive = False
         self.buffer = False
         self.args = []
         self.path = []
 
     def display_help(self):
-        print("Usage: extgraph.py <path> [-r] [-g] [extension1 .extension2 ...]")
-        print("       extgraph.py -b [-g] [extension1 .extension2 ...]")
+        print("Usage: extgraph.py <path> [-r] [-n] [extension1 .extension2 ...]")
+        print("       extgraph.py -b [-n] [extension1 .extension2 ...]")
         print("       extgraph.py [-h] [-v]")
 
     def display_version(self):
-        print("extgraph.py v0.0.1")
+        print("extgraph.py v0.0.4")
 
     def is_file(self, path):
         try:
@@ -81,7 +86,7 @@ class extgraph:
         listofext = list(extentions.keys())
 
         for file in filewithext:
-            file_ext = f".{file.split(".")[-1]}"
+            file_ext = f".{file.split('.')[-1]}"
 
             if file_ext in listofext:
                 extentions[file_ext].append(file)
@@ -123,19 +128,27 @@ class extgraph:
             print("no buffer found, run the program first without '-b or --buffer' flag")
             sys.exit(1)
 
-    def read_data(self, dict):
+    def read_data_in_files(self, dict):
         """
         read the dict.
         """
         for key, value in dict.items():
             if key != "files":
                 print(f"{key}: {value}")
+
+    def read_data_in_number(self, dict):
+        """
+        read the dict.
+        """
+        for key, value in dict.items():
+            if key != "files":
+                print(f"{key}: {len(value)}")
     
     def parse_args(self, args):
         """
         validate the flags in the input, then remove it to prevent it from being a file extension.
         """
-        flags = ["-r", "--recursive", "-g", "--graph", "-b", "--buffer", "-h", "--help", "-v", "--version"]
+        flags = ["-r", "--recursive", "-n", "--number", "-b", "--buffer", "-h", "--help", "-v", "--version"]
         to_remove = []
         
         for arg in args:
@@ -143,32 +156,34 @@ class extgraph:
                 print(f"Invalid argument: {arg}")
                 sys.exit(1)
         
-        if args[0] in ["-h", "--help"]:
+        if "-h" in args or "--help" in args:
             self.display_help()
             sys.exit(0)
 
-        elif args[0] in ["-v", "--version"]:
+        if "-v" in args or "--version" in args:
             self.display_version()
             sys.exit(0)
 
         # buffer and recursion cannot be used at the same time.
-        elif ("-r" in args or "--recursive" in args) and ("-b" in args or "--buffer" in args):
+        if ("-r" in args or "--recursive" in args) and ("-b" in args or "--buffer" in args):
             print("recursion and buffer cannot be used at the same time.")
             sys.exit(1)
 
         # if -b is used, ignore the path, and read the buffer.
-        elif "-b" in args or "--buffer" in args:
-            if args[0] != "-b" and args[0] != "--buffer":
+        if "-b" in args or "--buffer" in args:
+            if args[0] != "-b" and args[0] != "--buffer" and not args[0].startswith(("-", "--")):
                 print(f"path {args[0]} is ignored when using -b flag.")
                 to_remove.append(args[0])
             self.buffer = True
             to_remove += ["-b", "--buffer"]
 
-        elif "-g" in args or "--graph" in args:
-            self.graph = True
-            to_remove += ["-g", "--graph"]
+        if "-n" in args or "--number" in args:
+            # self.graph = True
+            self.number = True
+            to_remove += ["-n", "--number"]
         
-        elif "-r" in args or "--recursive" in args:
+        if "-r" in args or "--recursive" in args:
+            print("recursion is enabled.")
             self.recursive = True
             to_remove += ["-r", "--recursive"]
 
@@ -193,7 +208,10 @@ class extgraph:
         if self.buffer:
             files, folders = self.load_buffer()
             extensions = self.filter_by_extensions(files, folders)
-            self.read_data(extensions)
+            if self.number:
+                self.read_data_in_number(extensions)
+            else:
+                self.read_data_in_files(extensions)
             sys.exit(0)
 
         elif self.recursive:
@@ -206,7 +224,10 @@ class extgraph:
 
         extensions = self.filter_by_extensions(files, folders)
         self.save_buffer(extensions)
-        self.read_data(extensions)
+        if self.number:
+            self.read_data_in_number(extensions)
+        else:
+            self.read_data_in_files(extensions)
 
 try:
     ext = extgraph()
