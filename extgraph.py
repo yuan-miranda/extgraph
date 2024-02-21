@@ -2,7 +2,7 @@
 
 # NOTE: changed the "graph" flag to "number" flag instead temporarily, im testing something.
 
-# current version: v0.0.4 (version being the commit number from the repository)
+# current version: v0.0.5 (version being the commit number from the repository)
 
 
 import os
@@ -20,11 +20,12 @@ class extgraph:
 
     def display_help(self):
         print("Usage: extgraph.py <path> [-r] [-n] [extension1 .extension2 ...]")
-        print("       extgraph.py -b [-n] [extension1 .extension2 ...]")
+        # test
+        print("       extgraph.py <[-b] | [-n]> [extension1 .extension2 ...]")
         print("       extgraph.py [-h] [-v]")
 
     def display_version(self):
-        print("extgraph.py v0.0.4")
+        print("extgraph.py v0.0.5")
 
     def is_file(self, path):
         try:
@@ -128,22 +129,17 @@ class extgraph:
             print("no buffer found, run the program first without '-b or --buffer' flag")
             sys.exit(1)
 
-    def read_data_in_files(self, dict):
+    def read_data(self, dict):
         """
         read the dict.
         """
         for key, value in dict.items():
             if key != "files":
-                print(f"{key}: {value}")
+                if self.number:
+                    print(f"{key}: {len(value)}")
+                else:
+                    print(f"{key}: {value}")
 
-    def read_data_in_number(self, dict):
-        """
-        read the dict.
-        """
-        for key, value in dict.items():
-            if key != "files":
-                print(f"{key}: {len(value)}")
-    
     def parse_args(self, args):
         """
         validate the flags in the input, then remove it to prevent it from being a file extension.
@@ -207,27 +203,19 @@ class extgraph:
 
         if self.buffer:
             files, folders = self.load_buffer()
-            extensions = self.filter_by_extensions(files, folders)
-            if self.number:
-                self.read_data_in_number(extensions)
-            else:
-                self.read_data_in_files(extensions)
-            sys.exit(0)
-
         elif self.recursive:
             values = self.recursive_search(self.path)
             files, folders = values["files"], values["folders"]
-
         else:
             files = [f for f in os.listdir(self.path) if self.is_file(f"{self.path}/{f}")]
             folders = [d for d in os.listdir(self.path) if not self.is_file(f"{self.path}/{d}")]
 
         extensions = self.filter_by_extensions(files, folders)
-        self.save_buffer(extensions)
-        if self.number:
-            self.read_data_in_number(extensions)
-        else:
-            self.read_data_in_files(extensions)
+
+        if not self.buffer:
+            self.save_buffer(extensions)
+        
+        self.read_data(extensions)
 
 try:
     ext = extgraph()
