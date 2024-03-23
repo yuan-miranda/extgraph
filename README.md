@@ -33,4 +33,8 @@ py extgraph.py
 | `py extgraph.py .. -b`      | (Invalid) .. is ignored, and will only read the content of the buffer     |
 | `py extgraph.py -v`         | Display the current version of the script                                 |
 
-No need to setup things, you can even copy paste the source code alone and this will run (unless you dont have the packages used in this script which is wierd because its pre-intalled by dafault).
+
+## Installation Setup
+```
+pip install os sys json matplotlib
+```
