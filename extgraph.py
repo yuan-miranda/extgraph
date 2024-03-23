@@ -1,14 +1,15 @@
 # this program is still on development, no graph and in-dept instructions to use or informations is created yet.
-version = "v0.0.10"
+version = "v0.0.11"
 
 import os
 import sys
 import json
+import matplotlib.pyplot as plt
 
 
 class extgraph:
     def __init__(self) -> None:
-        # self.graph = False
+        self.graph = False
         self.number = False
         self.recursive = False
         self.buffer = False
@@ -40,14 +41,14 @@ class extgraph:
         """
         Recursively traverse the directory. Based on Roberthh's implementation: https://forum.micropython.org/viewtopic.php?t=7512#p42783.
         """
-        values = {"files": [], "folders": [], "error_paths": []}
+        values = {"others": [], "folders": [], "error_paths": []}
 
         if self.is_path_exists(path):
             try:
                 for item in os.listdir(path):
                     try:
                         if self.is_file(f"{path}/{item}"):
-                            values["files"].append(item)
+                            values["others"].append(item)
                         else:
                             values["folders"].append(item)
                         recursive_values = self.recursive_search(f"{path}/{item}")
@@ -77,7 +78,7 @@ class extgraph:
                 filewithoutext.append(file)
 
         extentions = {ext: [] for ext in self.args}
-        extentions["files"] = []
+        extentions["others"] = []
         extentions["folders"] = []
         extentions["error_paths"] = []
 
@@ -89,9 +90,9 @@ class extgraph:
             if file_ext in listofext:
                 extentions[file_ext].append(file)
             else:
-                extentions["files"].append(file)
+                extentions["others"].append(file)
         
-        extentions["files"] += filewithext + filewithoutext + filehidden
+        extentions["others"] += filewithoutext + filehidden
         extentions["folders"] += folders
         extentions["error_paths"] += error_paths
 
@@ -121,7 +122,7 @@ class extgraph:
         try:
             with open("buffer.json", "r") as f:
                 load_buffer = json.load(f)
-            return load_buffer["files"], load_buffer["folders"], load_buffer["error_paths"]
+            return load_buffer["others"], load_buffer["folders"], load_buffer["error_paths"]
         except FileNotFoundError:
             print("no buffer found, run the program first without '-b or --buffer' flag")
             sys.exit(1)
@@ -140,7 +141,7 @@ class extgraph:
         """
         validate the flags in the input, then remove it to prevent it from being a file extension.
         """
-        flags = ["-r", "--recursive", "-n", "--number", "-b", "--buffer", "-h", "--help", "-v", "--version"]
+        flags = ["-r", "--recursive", "-n", "--number", "-g", "--graph", "-b", "--buffer", "-h", "--help", "-v", "--version"]
         to_remove = []
         
         for arg in args:
@@ -161,6 +162,11 @@ class extgraph:
             print("recursion and buffer cannot be used at the same time.")
             sys.exit(1)
 
+        # graph and number cannot be used at the same time.
+        if "-g" in args and "-n" in args:
+            print("graph and number cannot be used at the same time.")
+            sys.exit(1)
+
         # if -b is used, ignore the path, and read the buffer.
         if "-b" in args or "--buffer" in args:
             if args[0] != "-b" and args[0] != "--buffer" and not args[0].startswith(("-", "--")):
@@ -168,6 +174,10 @@ class extgraph:
                 to_remove.append(args[0])
             self.buffer = True
             to_remove += ["-b", "--buffer"]
+        
+        if "-g" in args or "--graph" in args:
+            self.graph = True
+            to_remove += ["-g", "--graph"]
 
         if "-n" in args or "--number" in args:
             # self.graph = True
@@ -201,7 +211,7 @@ class extgraph:
             files, folders, error_paths = self.load_buffer()
         elif self.recursive:
             values = self.recursive_search(self.path)
-            files, folders, error_paths = values["files"], values["folders"], values["error_paths"]
+            files, folders, error_paths = values["others"], values["folders"], values["error_paths"]
         else:
             files = [f for f in os.listdir(self.path) if self.is_file(f"{self.path}/{f}")]
             folders = [d for d in os.listdir(self.path) if not self.is_file(f"{self.path}/{d}")]
@@ -212,7 +222,22 @@ class extgraph:
         if not self.buffer:
             self.save_buffer(extensions)
         
-        self.read_data(extensions)
+        if self.graph:
+            categories = list(extensions.keys())
+            values = [len(extensions[cat]) for cat in categories]
+            bars = plt.bar(categories, values)
+
+            for bar in bars:
+                yval = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2.0, yval, int(yval), ha='center', va='bottom')
+
+            plt.title(' '.join(sys.argv))
+            plt.xlabel("Extensions")
+            plt.ylabel("Length")
+            plt.savefig("graph.png")
+            plt.show()
+        else:
+            self.read_data(extensions)
 
 try:
     ext = extgraph()
