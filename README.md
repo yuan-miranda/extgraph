@@ -4,19 +4,19 @@ A python script that can list, filter files based on its extension.
 > [extgraph.py](https://github.com/yuan-miranda/extgraph/blob/main/extgraph.py) source code for the script.
 
 ## Usage
-Recursively access every content of the directory, and/or list in number quantity instead of each file, filter it by extension name i.e. `.txt`.
+Recursively accesses the contents of a directory, listing them in the terminal or generating a GUI graph. You can filter the files by extension name (e.g., .txt).
 ```
-py extgraph.py <path> [-r] [-n] [extension1 .extension2 ...]
+py extgraph.py <path> [-r] [-n | -g] [extension1 .extension2 ...]
 ```
-Read the buffer (last script execution content), and/or list in number quantity instead of each file, filter it by extension name i.e. `.txt`.
+Read the buffer (content from the last script execution) and/or list files in the terminal or generate a GUI graph, filtered by extension name.
 ```
-py extgraph.py [-b] [-n] [extension1 .extension2 ...]
+py extgraph.py [-b] [-n | -g] [extension1 .extension2 ...]
 ```
-Show usage guide or version.
+To display the usage guide or version information.
 ```
 py extgraph.py [-h] [-v]
 ```
-By default this will list the current directory content.
+By default, the script lists the contents of the current directory.
 ```
 py extgraph.py
 ```
@@ -25,14 +25,14 @@ py extgraph.py
 
 | Command                     | Operation                                                                 |
 |-----------------------------|---------------------------------------------------------------------------|
-| `py extgraph.py`            | List the current directory content                                        |
-| `py extgraph.py ..`         | List the parent directory content                                         |
-| `py extgraph.py .. -n`      | List the parent directory in number quantity instead of each file         |
-| `py extgraph.py -r`         | List all the content of current directory recursively                     |
-| `py extgraph.py -b`         | List the content of the buffer                                            |
-| `py extgraph.py .. -b`      | (Invalid) .. is ignored, and will only read the content of the buffer     |
-| `py extgraph.py -v`         | Display the current version of the script                                 |
-
+| `py extgraph.py`            | Lists the content of the current directory                                |
+| `py extgraph.py ..`         | Lists the content of the parent directory                                 |
+| `py extgraph.py .. -n`      | Lists the content of the parent directory, displaying the number of files |
+| `py extgraph.py -r`         | Lists all the contents of the current directory recursively               |
+| `py extgraph.py -b`         | Lists the content of the buffer                                           |
+| `py extgraph.py .. -b`      | (Invalid) ".." is ignored, and only the content of the buffer is read     |
+| `py extgraph.py -v`         | Displays the current version of the script                                |
+| `py extgraph.py -g`         | Generate and display a graphical graph of the data                        |
 
 ## Installation Setup
 ```
