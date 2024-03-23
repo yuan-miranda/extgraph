@@ -1,8 +1,5 @@
 # this program is still on development, no graph and in-dept instructions to use or informations is created yet.
-
-# NOTE: changed the "graph" flag to "number" flag instead temporarily, im testing something.
-
-# current version: v0.0.5 (version being the commit number from the repository)
+# current version: v0.0.6 (version being the commit number from the repository)
 
 
 import os
@@ -20,9 +17,9 @@ class extgraph:
 
     def display_help(self):
         print("Usage: extgraph.py <path> [-r] [-n] [extension1 .extension2 ...]")
-        # test
-        print("       extgraph.py <[-b] | [-n]> [extension1 .extension2 ...]")
+        print("       extgraph.py [-b] [-n] [extension1 .extension2 ...]")
         print("       extgraph.py [-h] [-v]")
+        print("       extgraph.py")
 
     def display_version(self):
         print("extgraph.py v0.0.5")
@@ -168,7 +165,7 @@ class extgraph:
         # if -b is used, ignore the path, and read the buffer.
         if "-b" in args or "--buffer" in args:
             if args[0] != "-b" and args[0] != "--buffer" and not args[0].startswith(("-", "--")):
-                print(f"path {args[0]} is ignored when using -b flag.")
+                print(f"path {args[0]} is ignored when using -b flag, loading the buffer.json content instead.")
                 to_remove.append(args[0])
             self.buffer = True
             to_remove += ["-b", "--buffer"]
