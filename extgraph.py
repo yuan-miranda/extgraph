@@ -1,9 +1,10 @@
 # this program is still on development, no graph and in-dept instructions to use or informations is created yet.
-# current version: v0.0.6 (version being the commit number from the repository)
+version = "v0.0.10"
 
 import os
 import sys
 import json
+
 
 class extgraph:
     def __init__(self) -> None:
@@ -21,7 +22,7 @@ class extgraph:
         print("       extgraph.py")
 
     def display_version(self):
-        print("extgraph.py v0.0.5")
+        print(f"extgraph.py {version}")
 
     def is_file(self, path):
         try:
