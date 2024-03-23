@@ -4,11 +4,11 @@ A python script that can list, filter files based on its extension.
 > [extgraph.py](https://github.com/yuan-miranda/extgraph/blob/main/extgraph.py) source code for the script.
 
 ## Usage
-Recursively access every content of the directory, and/or list in number quantity instead of each file, filter it my extension name i.e. `.txt`.
+Recursively access every content of the directory, and/or list in number quantity instead of each file, filter it by extension name i.e. `.txt`.
 ```
 py extgraph.py <path> [-r] [-n] [extension1 .extension2 ...]
 ```
-Read the buffer (last script execution content), and/or list in number quantity instead of each file, filter it my extension name i.e. `.txt`.
+Read the buffer (last script execution content), and/or list in number quantity instead of each file, filter it by extension name i.e. `.txt`.
 ```
 py extgraph.py [-b] [-n] [extension1 .extension2 ...]
 ```
