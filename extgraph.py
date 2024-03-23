@@ -1,7 +1,6 @@
 # this program is still on development, no graph and in-dept instructions to use or informations is created yet.
 # current version: v0.0.6 (version being the commit number from the repository)
 
-
 import os
 import sys
 import json
@@ -40,7 +39,7 @@ class extgraph:
         """
         Recursively traverse the directory. Based on Roberthh's implementation: https://forum.micropython.org/viewtopic.php?t=7512#p42783.
         """
-        values = {"files": [], "folders": [], "error_path": []}
+        values = {"files": [], "folders": [], "error_paths": []}
 
         if self.is_path_exists(path):
             try:
@@ -53,12 +52,12 @@ class extgraph:
                         recursive_values = self.recursive_search(f"{path}/{item}")
                         values = {key: values[key] + recursive_values[key] for key in values}
                     except OSError:
-                        values["error_path"].append(path)
+                        values["error_paths"].append(path)
             except (FileNotFoundError, PermissionError):
-                values["error_path"].append(path)
+                values["error_paths"].append(path)
         return values
 
-    def filter_by_extensions(self, files, folders):
+    def filter_by_extensions(self, files, folders, error_paths):
         """
         filter the files and folder to its respective extension and category.
         """
@@ -79,7 +78,7 @@ class extgraph:
         extentions = {ext: [] for ext in self.args}
         extentions["files"] = []
         extentions["folders"] = []
-        extentions["others"] = []
+        extentions["error_paths"] = []
 
         listofext = list(extentions.keys())
 
@@ -89,11 +88,11 @@ class extgraph:
             if file_ext in listofext:
                 extentions[file_ext].append(file)
             else:
-                extentions["others"].append(file)
+                extentions["files"].append(file)
         
         extentions["files"] += filewithext + filewithoutext + filehidden
         extentions["folders"] += folders
-        extentions["others"] += filewithoutext + filehidden
+        extentions["error_paths"] += error_paths
 
         return extentions
 
@@ -121,7 +120,7 @@ class extgraph:
         try:
             with open("buffer.json", "r") as f:
                 load_buffer = json.load(f)
-            return load_buffer["files"], load_buffer["folders"]
+            return load_buffer["files"], load_buffer["folders"], load_buffer["error_paths"]
         except FileNotFoundError:
             print("no buffer found, run the program first without '-b or --buffer' flag")
             sys.exit(1)
@@ -131,11 +130,10 @@ class extgraph:
         read the dict.
         """
         for key, value in dict.items():
-            if key != "files":
-                if self.number:
-                    print(f"{key}: {len(value)}")
-                else:
-                    print(f"{key}: {value}")
+            if self.number:
+                print(f"{key}: {len(value)}")
+            else:
+                print(f"{key}: {value}")
 
     def parse_args(self, args):
         """
@@ -199,15 +197,16 @@ class extgraph:
         self.args = self.parse_args(args)
 
         if self.buffer:
-            files, folders = self.load_buffer()
+            files, folders, error_paths = self.load_buffer()
         elif self.recursive:
             values = self.recursive_search(self.path)
-            files, folders = values["files"], values["folders"]
+            files, folders, error_paths = values["files"], values["folders"], values["error_paths"]
         else:
             files = [f for f in os.listdir(self.path) if self.is_file(f"{self.path}/{f}")]
             folders = [d for d in os.listdir(self.path) if not self.is_file(f"{self.path}/{d}")]
+            error_paths = [] # work on this later.
 
-        extensions = self.filter_by_extensions(files, folders)
+        extensions = self.filter_by_extensions(files, folders, error_paths)
 
         if not self.buffer:
             self.save_buffer(extensions)
