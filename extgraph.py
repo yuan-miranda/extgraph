@@ -1,5 +1,5 @@
 # this program is still on development, no graph and in-dept instructions to use or informations is created yet.
-version = "v0.0.11"
+version = "v0.0.13"
 
 import os
 import sys
@@ -17,8 +17,8 @@ class extgraph:
         self.path = []
 
     def display_help(self):
-        print("Usage: extgraph.py <path> [-r] [-n] [extension1 .extension2 ...]")
-        print("       extgraph.py [-b] [-n] [extension1 .extension2 ...]")
+        print("Usage: extgraph.py <path> [-r] [-n | -g] [extension1 .extension2 ...]")
+        print("       extgraph.py [-b] [-n | -g] [extension1 .extension2 ...]")
         print("       extgraph.py [-h] [-v]")
         print("       extgraph.py")
 
