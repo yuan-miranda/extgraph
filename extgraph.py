@@ -1,6 +1,6 @@
 # this program is still on development, no graph and in-dept instructions to use or informations is created yet.
-# For Windows.
-version = "v0.0.15"
+# for Windows.
+version = "v.0.1.6"
 
 import os
 import sys
@@ -50,26 +50,29 @@ class extgraph:
         """
         items = {"files": [], "folders": [], "hidden": [], "error_paths": []}
 
-        if self.is_path_exists(path):
-            try:
-                for item in os.listdir(path):
-                    try:
-                        # filter files, folders, and hidden files/directories.
-                        if self.is_file(f"{path}/{item}") and not self.is_hidden(f"{path}/{item}"):
-                            items["files"].append(item)
+        if not self.is_path_exists(path):
+            return items
+        
+        try:
+            for item in os.listdir(path):
+                try:
+                    # filter files, folders, and hidden files/directories.
+                    if self.is_file(f"{path}/{item}") and not self.is_hidden(f"{path}/{item}"):
+                        items["files"].append(item)
 
-                        elif not self.is_file(f"{path}/{item}") and not self.is_hidden(f"{path}/{item}"):
-                            items["folders"].append(item)
+                    elif not self.is_file(f"{path}/{item}") and not self.is_hidden(f"{path}/{item}"):
+                        items["folders"].append(item)
 
-                        elif self.is_hidden(f"{path}/{item}"):
-                            items["hidden"].append(item)
+                    elif self.is_hidden(f"{path}/{item}"):
+                        items["hidden"].append(item)
 
-                        recursive_items = self.recursive_search(f"{path}/{item}")
-                        items = {key: items[key] + recursive_items[key] for key in items}
-                    except OSError:
-                        items["error_paths"].append(path)
-            except (FileNotFoundError, PermissionError):
-                items["error_paths"].append(path)
+                    recursive_items = self.recursive_search(f"{path}/{item}")
+                    items = {key: items[key] + recursive_items[key] for key in items}
+                except OSError:
+                    items["error_paths"].append(path)
+        except (FileNotFoundError, PermissionError):
+            items["error_paths"].append(path)
+
         return items
     
 
@@ -136,7 +139,7 @@ class extgraph:
 
     def display_number(self, extensions):
         for key, value in extensions.items():
-            print(key, len(value))
+            print(f"{key}: {len(value)}")
 
     def display_data(self, extensions):
         for key, value in extensions.items():
@@ -189,7 +192,7 @@ class extgraph:
             to_remove += ["-n", "--number"]
         
         if "-r" in args or "--recursive" in args:
-            print("recursion is enabled.")
+            print("recursion enabled.")
             self.recursive = True
             to_remove += ["-r", "--recursive"]
 
@@ -213,7 +216,6 @@ class extgraph:
             items = self.recursive_search(self.path)
             self.save_buffer(items)
         else:
-            print("active here")
             items = {
                 "files": [f for f in os.listdir(self.path) if self.is_file(f) and not self.is_hidden(f)],
                 "folders": [f for f in os.listdir(self.path) if not self.is_file(f) and not self.is_hidden(f)],
