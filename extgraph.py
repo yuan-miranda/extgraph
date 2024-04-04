@@ -45,9 +45,7 @@ class extgraph:
             return False
 
     def recursive_search(self, path):
-        """
-        recursively traverse the directory. Based on Roberthh's implementation: https://forum.micropython.org/viewtopic.php?t=7512#p42783.
-        """
+        """recursively traverse the directory. Based on Roberthh's implementation: https://forum.micropython.org/viewtopic.php?t=7512#p42783."""
         items = {"files": [], "folders": [], "hidden": [], "error_paths": []}
 
         if not self.is_path_exists(path):
@@ -74,12 +72,9 @@ class extgraph:
             items["error_paths"].append(path)
 
         return items
-    
 
     def filter_by_extensions(self, items):
-        """
-        filter the files and folder to its respective extension and category.
-        """
+        """filter the files and folder to its respective extension and category."""
         extensions = {ext: [] for ext in self.args}
         extensions["others"] = []
         extensions["folders"] = items["folders"]
@@ -98,14 +93,12 @@ class extgraph:
         return extensions
 
     def set_path(self, path):
-        """
-        set the path to work with, if the path doesnt exist, exit the program.
-        """
+        """set the path to work with, if the path doesnt exist, exit the program."""
         if not self.is_path_exists(path):
             print(f"the path specified '{path}' does not exist.")
             sys.exit(1)
         return path
-    
+
     def save_buffer(self, dict):
         with open("buffer.json", "w") as file:
             json.dump(dict, file)
@@ -143,12 +136,10 @@ class extgraph:
 
     def display_data(self, extensions):
         for key, value in extensions.items():
-            print(f"{key}: {value}")
+            print(f"{key}: {', '.join(value)}")
 
     def parse_args(self, args):
-        """
-        validate the flags in the input, then remove it to prevent it from being a file extension.
-        """
+        """validate the flags in the input, then remove it to prevent it from being a file extension."""
         flags = ["-r", "--recursive", "-n", "--number", "-g", "--graph", "-b", "--buffer", "-h", "--help", "-v", "--version"]
         to_remove = []
         
