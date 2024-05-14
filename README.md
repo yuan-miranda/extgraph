@@ -37,7 +37,7 @@ py extgraph.py
 1. Clone the repository on your machine:
 > Note: No need to clone the repository, you can even just download or copy the contents of [extgraph.py](https://github.com/yuan-miranda/extgraph/blob/main/extgraph.py) and it will still work fine.<br>
 ```
-git clone https://github.com/yuan-miranda/microfilesys.git
+git clone https://github.com/yuan-miranda/extgraph.git
 ```
 2. Download the following modules:
 ```
