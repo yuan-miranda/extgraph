@@ -11,9 +11,9 @@ Read the buffer (content from the last script execution) and/or list files in th
 ```
 py extgraph.py [-b] [-n | -g] [extension1 .extension2 ...]
 ```
-To display the usage guide or version information.
+To display the usage guide.
 ```
-py extgraph.py [-h] [-v]
+py extgraph.py [-h]
 ```
 By default, the script lists the contents of the current directory.
 ```
@@ -29,7 +29,6 @@ py extgraph.py
 | py extgraph.py -r         | Lists all the contents of the current directory recursively               |
 | py extgraph.py -b         | Lists the content of the buffer                                           |
 | py extgraph.py .. -b      | (Invalid) ".." is ignored, and only the content of the buffer is read     |
-| py extgraph.py -v         | Displays the current version of the script                                |
 | py extgraph.py -g         | Generate and display a graphical graph of the data                        |
 
 ## Installation:

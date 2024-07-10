@@ -1,7 +1,3 @@
-# this program is still on development, no graph and in-dept instructions to use or informations is created yet.
-# for Windows.
-version = "v.0.1.6"
-
 import os
 import sys
 import json
@@ -20,11 +16,8 @@ class extgraph:
     def display_help(self):
         print("Usage: extgraph.py <path> [-r] [-n | -g] [extension1 .extension2 ...]")
         print("       extgraph.py [-b] [-n | -g] [extension1 .extension2 ...]")
-        print("       extgraph.py [-h] [-v]")
+        print("       extgraph.py [-h]")
         print("       extgraph.py")
-
-    def display_version(self):
-        print(f"extgraph.py {version}")
 
     def is_hidden(self, path):
         try:
@@ -47,30 +40,24 @@ class extgraph:
     def recursive_search(self, path):
         """recursively traverse the directory. Based on Roberthh's implementation: https://forum.micropython.org/viewtopic.php?t=7512#p42783."""
         items = {"files": [], "folders": [], "hidden": [], "error_paths": []}
-
         if not self.is_path_exists(path):
             return items
-        
         try:
             for item in os.listdir(path):
                 try:
                     # filter files, folders, and hidden files/directories.
                     if self.is_file(f"{path}/{item}") and not self.is_hidden(f"{path}/{item}"):
                         items["files"].append(item)
-
                     elif not self.is_file(f"{path}/{item}") and not self.is_hidden(f"{path}/{item}"):
                         items["folders"].append(item)
-
                     elif self.is_hidden(f"{path}/{item}"):
                         items["hidden"].append(item)
-
                     recursive_items = self.recursive_search(f"{path}/{item}")
                     items = {key: items[key] + recursive_items[key] for key in items}
                 except OSError:
                     items["error_paths"].append(path)
         except (FileNotFoundError, PermissionError):
             items["error_paths"].append(path)
-
         return items
 
     def filter_by_extensions(self, items):
@@ -80,7 +67,6 @@ class extgraph:
         extensions["folders"] = items["folders"]
         extensions["error_paths"] = items["error_paths"]
         extensions["hidden"] = items["hidden"]
-
         files = items["files"]
 
         for file in files:
@@ -89,7 +75,6 @@ class extgraph:
                 extensions[ext].append(file)
             else:
                 extensions["others"].append(file)
-
         return extensions
 
     def set_path(self, path):
@@ -140,7 +125,7 @@ class extgraph:
 
     def parse_args(self, args):
         """validate the flags in the input, then remove it to prevent it from being a file extension."""
-        flags = ["-r", "--recursive", "-n", "--number", "-g", "--graph", "-b", "--buffer", "-h", "--help", "-v", "--version"]
+        flags = ["-r", "--recursive", "-n", "--number", "-g", "--graph", "-b", "--buffer", "-h", "--help"]
         to_remove = []
         
         for arg in args:
@@ -150,10 +135,6 @@ class extgraph:
         
         if "-h" in args or "--help" in args:
             self.display_help()
-            sys.exit(0)
-
-        if "-v" in args or "--version" in args:
-            self.display_version()
             sys.exit(0)
 
         # buffer and recursion cannot be used at the same time.
@@ -195,7 +176,6 @@ class extgraph:
             else:
                 self.path = self.set_path(args[0])
                 to_remove.append(args[0])
-
         return [arg for arg in args if arg not in to_remove]
     
     def run(self, args):
@@ -223,8 +203,8 @@ class extgraph:
         else:
             self.display_data(extensions)
 
-try:
-    ext = extgraph()
-    ext.run(sys.argv[1:])
-except IndexError:
-    ext.run([os.getcwd()])
+if __name__ == "__main__":
+    try:
+        extgraph().run(sys.argv[1:])
+    except IndexError:
+        extgraph().run([os.getcwd()])
