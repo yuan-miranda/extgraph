@@ -31,7 +31,7 @@ py extgraph.py
 | py extgraph.py .. -b      | (Invalid) ".." is ignored, and only the content of the buffer is read     |
 | py extgraph.py -g         | Generate and display a graphical graph of the data                        |
 
-## Installation:
+## Installation
 **Note: You must have `Git` and `Python 3` or above installed prior to this setup.**
 1. Clone the repository on your machine:
 > Note: No need to clone the repository, you can even just download or copy the contents of [extgraph.py](https://github.com/yuan-miranda/extgraph/blob/main/extgraph.py) and it will still work fine.<br>
