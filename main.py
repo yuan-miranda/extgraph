@@ -113,7 +113,7 @@ def display_file_graph(extensions):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Analyze file extensions in directories"
+        description="Visualize file extensions"
     )
 
     # positional
