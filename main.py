@@ -46,7 +46,7 @@ def recursive_search(path):
 
 def filter_by_extensions(items, args):
     extensions = {ext: [] for ext in args}
-    extensions["others"] = []
+    extensions["files"] = []
     extensions["folders"] = items["folders"]
     extensions["error_paths"] = items["error_paths"]
     extensions["hidden"] = items["hidden"]
@@ -60,7 +60,7 @@ def filter_by_extensions(items, args):
                 found = True
                 break
         if not found:
-            extensions["others"].append(file)
+            extensions["files"].append(file)
 
     return extensions
 
@@ -168,7 +168,7 @@ def parse_args():
         sys.exit("Cannot use both -n and -g options together.")
 
     if buffer_arg and path_arg != os.getcwd():
-        sys.exit(
+        print(
             f"'{path_arg}' is ignored when using -b option. Values will be loaded from 'buffer.json'."
         )
     if not buffer_arg and not os.path.exists(path_arg):
