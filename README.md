@@ -30,37 +30,37 @@ python .\extgraph.py --help
 List the files in the current directory
 
 ```
-py .\extgraph.py
+python .\extgraph.py
 ```
 
 List the files recursively in the current directory (all files)
 
 ```
-py .\extgraph.py --recursive
+python .\extgraph.py --recursive
 ```
 
 List in file count (i.e., folder: 10)
 
 ```
-py .\extgraph.py --number
+python .\extgraph.py --number
 ```
 
 List the file in a bar graph using matplotlib
 
 ```
-py .\extgraph.py --graph
+python .\extgraph.py --graph
 ```
 
 Load the value from the buffer.json
 
 ```
-py .\extgraph.py --buffer
+python .\extgraph.py --buffer
 ```
 
 Separate the specified extensions
 
 ```
-py .\extgraph.py . .py
+python .\extgraph.py . .py
 ```
 
 ## Contributing
