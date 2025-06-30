@@ -56,6 +56,12 @@ Load the value from the buffer.json
 py .\extgraph.py --buffer
 ```
 
+Separate the specified extensions
+
+```
+py .\extgraph.py . .py
+```
+
 ## Contributing
 
 PRs accepted.
