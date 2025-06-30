@@ -46,9 +46,13 @@ class extgraph:
             for item in os.listdir(path):
                 try:
                     # filter files, folders, and hidden files/directories.
-                    if self.is_file(f"{path}/{item}") and not self.is_hidden(f"{path}/{item}"):
+                    if self.is_file(f"{path}/{item}") and not self.is_hidden(
+                        f"{path}/{item}"
+                    ):
                         items["files"].append(item)
-                    elif not self.is_file(f"{path}/{item}") and not self.is_hidden(f"{path}/{item}"):
+                    elif not self.is_file(f"{path}/{item}") and not self.is_hidden(
+                        f"{path}/{item}"
+                    ):
                         items["folders"].append(item)
                     elif self.is_hidden(f"{path}/{item}"):
                         items["hidden"].append(item)
@@ -97,7 +101,9 @@ class extgraph:
             with open("buffer.json", "r") as file:
                 return json.load(file)
         except FileNotFoundError:
-            print("buffer.json does not exist, please run the program with -r flag first.")
+            print(
+                "buffer.json does not exist, please run the program with -r flag first."
+            )
             sys.exit(1)
 
     def display_graph(self, extensions):
@@ -107,9 +113,15 @@ class extgraph:
 
         for bar in bars:
             yval = bar.get_height()
-            plt.text(bar.get_x() + bar.get_width()/2.0, yval, int(yval), ha='center', va='bottom')
+            plt.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                yval,
+                int(yval),
+                ha="center",
+                va="bottom",
+            )
 
-        plt.title(' '.join(sys.argv))
+        plt.title(" ".join(sys.argv))
         plt.xlabel("Extensions")
         plt.ylabel("Length")
         plt.savefig("graph.png")
@@ -125,20 +137,33 @@ class extgraph:
 
     def parse_args(self, args):
         """validate the flags in the input, then remove it to prevent it from being a file extension."""
-        flags = ["-r", "--recursive", "-n", "--number", "-g", "--graph", "-b", "--buffer", "-h", "--help"]
+        flags = [
+            "-r",
+            "--recursive",
+            "-n",
+            "--number",
+            "-g",
+            "--graph",
+            "-b",
+            "--buffer",
+            "-h",
+            "--help",
+        ]
         to_remove = []
-        
+
         for arg in args:
             if arg.startswith(("-", "--")) and not arg in flags:
                 print(f"Invalid argument: {arg}")
                 sys.exit(1)
-        
+
         if "-h" in args or "--help" in args:
             self.display_help()
             sys.exit(0)
 
         # buffer and recursion cannot be used at the same time.
-        if ("-r" in args or "--recursive" in args) and ("-b" in args or "--buffer" in args):
+        if ("-r" in args or "--recursive" in args) and (
+            "-b" in args or "--buffer" in args
+        ):
             print("recursion and buffer cannot be used at the same time.")
             sys.exit(1)
 
@@ -149,12 +174,18 @@ class extgraph:
 
         # if -b is used, ignore the path, and read the buffer.
         if "-b" in args or "--buffer" in args:
-            if args[0] != "-b" and args[0] != "--buffer" and not args[0].startswith(("-", "--")):
-                print(f"path {args[0]} is ignored when using -b flag, loading the buffer.json content instead.")
+            if (
+                args[0] != "-b"
+                and args[0] != "--buffer"
+                and not args[0].startswith(("-", "--"))
+            ):
+                print(
+                    f"path {args[0]} is ignored when using -b flag, loading the buffer.json content instead."
+                )
                 to_remove.append(args[0])
             self.buffer = True
             to_remove += ["-b", "--buffer"]
-        
+
         if "-g" in args or "--graph" in args:
             self.graph = True
             to_remove += ["-g", "--graph"]
@@ -162,7 +193,7 @@ class extgraph:
         if "-n" in args or "--number" in args:
             self.number = True
             to_remove += ["-n", "--number"]
-        
+
         if "-r" in args or "--recursive" in args:
             print("recursion enabled.")
             self.recursive = True
@@ -177,10 +208,10 @@ class extgraph:
                 self.path = self.set_path(args[0])
                 to_remove.append(args[0])
         return [arg for arg in args if arg not in to_remove]
-    
+
     def run(self, args):
         self.args = self.parse_args(args)
-        
+
         if self.buffer:
             items = self.load_buffer()
         elif self.recursive:
@@ -188,12 +219,20 @@ class extgraph:
             self.save_buffer(items)
         else:
             items = {
-                "files": [f for f in os.listdir(self.path) if self.is_file(f) and not self.is_hidden(f)],
-                "folders": [f for f in os.listdir(self.path) if not self.is_file(f) and not self.is_hidden(f)],
+                "files": [
+                    f
+                    for f in os.listdir(self.path)
+                    if self.is_file(f) and not self.is_hidden(f)
+                ],
+                "folders": [
+                    f
+                    for f in os.listdir(self.path)
+                    if not self.is_file(f) and not self.is_hidden(f)
+                ],
                 "hidden": [f for f in os.listdir(self.path) if self.is_hidden(f)],
-                "error_paths": [] # work on this later.
+                "error_paths": [],  # work on this later.
             }
-    
+
         extensions = self.filter_by_extensions(items)
 
         if self.graph:
@@ -202,6 +241,7 @@ class extgraph:
             self.display_number(extensions)
         else:
             self.display_data(extensions)
+
 
 if __name__ == "__main__":
     try:
