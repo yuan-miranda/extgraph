@@ -1,6 +1,7 @@
 # Extension Graph (extgraph)
 
 A python script that can list, filter, visualize files and directiories based on its extension.
+![image](https://github.com/user-attachments/assets/da0e5e8d-8c7a-4555-a076-45e63ed294f2)
 
 ## Install
 
