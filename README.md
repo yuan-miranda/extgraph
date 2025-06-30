@@ -1,48 +1,61 @@
-## Extension Graph (extgraph)
-A python script that can list, filter files based on its extension.
-> [extgraph.py](https://github.com/yuan-miranda/extgraph/blob/main/extgraph.py) source code for the script.
+# Extension Graph (extgraph)
+
+A python script that can list, filter, visualize files and directiories based on its extension.
+
+## Install
+
+Clone the repository and install the dependencies
+
+```
+https://github.com/yuan-miranda/extgraph.git
+```
+
+```
+cd extgraph
+```
+
+```
+pip install -r requirements.txt
+```
 
 ## Usage
-Recursively accesses the contents of a directory, listing them in the terminal or generating a GUI graph. You can filter the files by extension name (e.g., .txt).
+
+### For a generic help page
+
 ```
-py extgraph.py <path> [-r] [-n | -g] [extension1 .extension2 ...]
-```
-Read the buffer (content from the last script execution) and/or list files in the terminal or generate a GUI graph, filtered by extension name.
-```
-py extgraph.py [-b] [-n | -g] [extension1 .extension2 ...]
-```
-To display the usage guide.
-```
-py extgraph.py [-h]
-```
-By default, the script lists the contents of the current directory.
-```
-py extgraph.py
+python .\extgraph.py --help
 ```
 
-## Example Commands
-| Command                   | Operation                                                                 |
-|---------------------------|---------------------------------------------------------------------------|
-| py extgraph.py            | Lists the content of the current directory                                |
-| py extgraph.py ..         | Lists the content of the parent directory                                 |
-| py extgraph.py .. -n      | Lists the content of the parent directory, displaying the number of files |
-| py extgraph.py -r         | Lists all the contents of the current directory recursively               |
-| py extgraph.py -b         | Lists the content of the buffer                                           |
-| py extgraph.py .. -b      | (Invalid) ".." is ignored, and only the content of the buffer is read     |
-| py extgraph.py -g         | Generate and display a graphical graph of the data                        |
+List the files in the current directory
 
-## Installation
-**Note: You must have `Git` and `Python 3` or above installed prior to this setup.**
-1. Clone the repository on your machine:
-> Note: No need to clone the repository, you can even just download or copy the contents of [extgraph.py](https://github.com/yuan-miranda/extgraph/blob/main/extgraph.py) and it will still work fine.<br>
 ```
-git clone https://github.com/yuan-miranda/extgraph.git
+py .\extgraph.py
 ```
-2. Download the following modules:
+
+List the files recursively in the current directory (all files)
+
 ```
-pip install os sys json matplotlib
+py .\extgraph.py --recursive
 ```
-3. Run the script by executing the command below:
+
+List in file count (i.e., folder: 10)
+
 ```
-python microfilesys.py
+py .\extgraph.py --number
 ```
+
+List the file in a bar graph using matplotlib
+
+```
+py .\extgraph.py --graph
+```
+
+Load the value from the buffer.json
+
+```
+py .\extgraph.py --buffer
+```
+
+## Contributing
+
+PRs accepted.
