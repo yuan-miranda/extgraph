@@ -119,16 +119,8 @@ def display_data(extensions):
 
 
 def create_parser():
-    """Create and configure the argument parser."""
     parser = argparse.ArgumentParser(
-        description="Analyze file extensions in directories",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  extgraph.py /path/to/directory -r -g .py .js
-  extgraph.py -b -n .txt .md
-  extgraph.py . --recursive --number
-        """,
+        description="Analyze file extensions in directories"
     )
 
     # Positional argument for path
