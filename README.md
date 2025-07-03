@@ -8,7 +8,7 @@ A python script that can list, filter, visualize files and directiories based on
 Clone the repository and install the dependencies
 
 ```
-https://github.com/yuan-miranda/extgraph.git
+git clone https://github.com/yuan-miranda/extgraph.git
 ```
 
 ```
